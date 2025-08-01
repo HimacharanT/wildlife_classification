@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animal Result - {{ name.title() }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Core Colors */
+      --background: 0 0% 100%;
+      --foreground: 222.2 84% 4.9%;
+      --muted: 210 40% 96%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --border: 214.3 31.8% 91.4%;
+      --primary: 142 76% 36%;
+      --primary-foreground: 355.7 100% 97.3%;
+      --secondary: 210 40% 96%;
+      --secondary-foreground: 222.2 84% 4.9%;
+      --accent: 43 74% 66%;
+      --accent-foreground: 222.2 84% 4.9%;
+
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(142 70% 45%));
+      --gradient-secondary: linear-gradient(135deg, hsl(200 100% 70%), hsl(220 100% 75%));
+      --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(25 95% 70%));
+
+      /* Shadows */
+      --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-3d: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      /* Transitions */
+      --transition-3d: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background */
+    .background {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: linear-gradient(135deg, hsl(142 50% 95%) 0%, hsl(200 50% 95%) 50%, hsl(43 50% 95%) 100%);
+    }
+
+    .background::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, hsl(142 40% 90% / 0.2) 0%, transparent 50%, hsl(200 40% 90% / 0.2) 100%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    .decorative-blur {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.3;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .blur-1 {
+      top: 10%;
+      left: 10%;
+      width: 200px;
+      height: 200px;
+      background: hsl(142 60% 70% / 0.3);
+    }
+
+    .blur-2 {
+      top: 20%;
+      right: 20%;
+      width: 250px;
+      height: 250px;
+      background: hsl(200 60% 70% / 0.3);
+      animation-delay: 2s;
+    }
+
+    .blur-3 {
+      bottom: 20%;
+      left: 20%;
+      width: 220px;
+      height: 220px;
+      background: hsl(43 60% 70% / 0.3);
+      animation-delay: 4s;
+    }
+
+    .blur-4 {
+      bottom: 10%;
+      right: 10%;
+      width: 180px;
+      height: 180px;
+      background: hsl(320 60% 70% / 0.3);
+      animation-delay: 1s;
+    }
+
+    /* Floating particles */
+    .particles {
+      position: absolute;
+      font-size: 24px;
+      pointer-events: none;
+      animation: particles 15s linear infinite;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    /* Main container */
+    .container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      perspective: 1000px;
+    }
+
+    /* Card styles */
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 24px;
+      box-shadow: var(--shadow-card);
+      transform-style: preserve-3d;
+      transition: var(--transition-3d);
+      max-width: 800px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .card:hover {
+      transform: scale(1.02) rotateY(2deg) rotateX(1deg);
+      box-shadow: var(--shadow-3d);
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .icon-accent {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    .icon-accent svg {
+      width: 24px;
+      height: 24px;
+      color: white;
+    }
+
+    .celebration {
+      font-size: 32px;
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, hsl(142 76% 36%), hsl(43 74% 66%));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Image display */
+    .image-container {
+      position: relative;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+
+    .result-image {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: var(--shadow-3d);
+      transition: var(--transition-3d);
+    }
+
+    .image-container:hover .result-image {
+      transform: scale(1.05);
+    }
+
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
+      border-radius: 16px;
+      opacity: 0;
+      transition: var(--transition-3d);
+    }
+
+    .image-container:hover .image-overlay {
+      opacity: 1;
+    }
+
+    .action-buttons {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      opacity: 0;
+      transition: var(--transition-3d);
+    }
+
+    .image-container:hover .action-buttons {
+      opacity: 1;
+    }
+
+    .action-btn {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-3d);
+      box-shadow: var(--shadow-card);
+    }
+
+    .action-btn:hover {
+      transform: scale(1.1);
+      background: white;
+    }
+
+    .action-btn.liked {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Animal information */
+    .animal-info {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .animal-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: hsl(var(--foreground));
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .paw-icon {
+      font-size: 2rem;
+    }
+
+    .description-card {
+      background: linear-gradient(135deg, hsl(var(--secondary) / 0.1), hsl(var(--accent) / 0.1));
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .description-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .description-text {
+      color: hsl(var(--muted-foreground));
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05));
+      transition: var(--transition-3d);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-card:nth-child(2) {
+      background: linear-gradient(135deg, hsl(var(--secondary) / 0.1), hsl(var(--secondary) / 0.05));
+    }
+
+    .stat-card:nth-child(3) {
+      background: linear-gradient(135deg, hsl(var(--accent) / 0.1), hsl(var(--accent) / 0.05));
+    }
+
+    .stat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 0.75rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Action buttons */
+    .action-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-3d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      flex: 1;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: var(--shadow-card);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: var(--shadow-3d);
+    }
+
+    .btn-secondary {
+      background: hsl(var(--secondary));
+      color: hsl(var(--secondary-foreground));
+      border: 1px solid hsl(var(--border));
+    }
+
+    .btn-secondary:hover {
+      background: hsl(var(--muted));
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .footer-text {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.875rem;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(255, 193, 7, 0.5); }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes particles {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .card {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      
+      .animal-name {
+        font-size: 1.5rem;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .result-image {
+        height: 250px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .action-buttons {
+        position: static;
+        opacity: 1;
+        margin-top: 1rem;
+        justify-content: center;
+      }
+      
+      .image-overlay {
+        opacity: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background">
+    <div class="decorative-blur blur-1"></div>
+    <div class="decorative-blur blur-2"></div>
+    <div class="decorative-blur blur-3"></div>
+    <div class="decorative-blur blur-4"></div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <!-- Success Header -->
+      <div class="header">
+        <div class="header-icon">
+          <div class="icon-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3v18"/>
+              <path d="M8 21l4-4 4 4"/>
+              <path d="M8 3l4 4 4-4"/>
+            </svg>
+          </div>
+          <div class="celebration">🎉</div>
+        </div>
+        <h2 class="success-title">Animal Identified Successfully!</h2>
+      </div>
+
+      <!-- Image Display -->
+      <div class="image-container">
+        <img src="{{ image_path }}" alt="Identified {{ name }}" class="result-image">
+        <div class="image-overlay"></div>
+        
+        <!-- Action Buttons Overlay -->
+        <div class="action-buttons">
+          <button class="action-btn" id="likeBtn" onclick="toggleLike()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <button class="action-btn" onclick="shareResult()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+          <button class="action-btn" onclick="downloadImage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7,10 12,15 17,10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Animal Information -->
+      <div class="animal-info">
+        <h3 class="animal-name">
+          <span class="paw-icon">🐾</span>
+          {{ name.title() }}
+          <span class="paw-icon">🐾</span>
+        </h3>
+        
+        <div class="description-card">
+          <h4 class="description-title">
+            <span style="font-size: 1.5rem;">📖</span>
+            Animal Information
+          </h4>
+          <p class="description-text">{{ description }}</p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-label">Accuracy</div>
+          <div class="stat-value">95%+</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-label">Speed</div>
+          <div class="stat-value">Instant</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-label">Species</div>
+          <div class="stat-value">1000+</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section">
+        <div class="btn-group">
+          <a href="/" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+              <polyline points="1,4 1,10 7,10"/>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+            </svg>
+            Try Another Image
+          </a>
+          
+          <button class="btn btn-secondary" onclick="shareResult()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Share Result
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-text">
+          🌟 Powered by Advanced AI • Learn about wildlife • Share with friends
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Generate floating particles
+    const animalEmojis = ['🦁', '🐯', '🐸', '🦋', '🐰', '🦊', '🐺', '🐻', '🐼', '🐨', '🦝', '🦌', '🦏', '🐘', '🐒', '🦒', '🦓', '🐆', '🐅', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🐐', '🦙', '🦘'];
+    
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.className = 'particles';
+      particle.textContent = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+      particle.style.animationDelay = Math.random() * 5 + 's';
+      document.querySelector('.background').appendChild(particle);
+      
+      setTimeout(() => {
+        particle.remove();
+      }, 20000);
+    }
+
+    // Create particles periodically
+    setInterval(createParticle, 2000);
+
+    // Interactive functions
+    let isLiked = false;
+
+    function toggleLike() {
+      const likeBtn = document.getElementById('likeBtn');
+      isLiked = !isLiked;
+      
+      if (isLiked) {
+        likeBtn.classList.add('liked');
+        likeBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+      } else {
+        likeBtn.classList.remove('liked');
+        likeBtn.querySelector('svg').setAttribute('fill', 'none');
+      }
+    }
+
+    function shareResult() {
+      if (navigator.share) {
+        navigator.share({
+          title: `I identified a {{ name.title() }}!`,
+          text: `{{ description[:100] }}...`,
+          url: window.location.href,
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(`I identified a {{ name.title() }}! Check it out:`);
+        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+      }
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.href = '{{ image_path }}';
+      link.download = '{{ name.lower().replace(" ", "-") }}-identified.jpg';
+      link.click();
+    }
+  </script>
+</body>
+</html>
